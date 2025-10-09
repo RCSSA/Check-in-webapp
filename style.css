@@ -66,15 +66,15 @@ body {
 }
 
 .status-page.status-success {
-    background: #4ade80 !important;
+    background: #86efac !important;
 }
 
 .status-page.status-warning {
-    background: #fbbf24;
+    background: #fef08a;
 }
 
 .status-page.status-error {
-    background: #dc2626;
+    background: #fca5a5;
 }
 
 .status-content {
