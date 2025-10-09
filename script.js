@@ -133,8 +133,13 @@ async function checkInViaScript(qrCode) {
         body: JSON.stringify({
             action: 'checkIn',
             qrCode: qrCode
-        })
+        }),
+        redirect: 'follow'  // Important: Handle Google Apps Script redirects
     });
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
     const result = await response.json();
     return result;
@@ -167,7 +172,8 @@ async function processQRCode(qrCodeData) {
         
     } catch (error) {
         console.error('Error processing QR code:', error);
-        showStatus('Error processing QR code. Please try again.', 'error');
+        const errorMsg = error.message || 'Error processing QR code. Please try again.';
+        showStatus(errorMsg, 'error');
     } finally {
         // Allow scanning again after 2 seconds
         setTimeout(() => {
