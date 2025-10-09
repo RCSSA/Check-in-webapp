@@ -66,7 +66,7 @@ body {
 }
 
 .status-page.status-success {
-    background: #4ade80;
+    background: #4ade80 !important;
 }
 
 .status-page.status-warning {
