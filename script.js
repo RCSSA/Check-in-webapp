@@ -126,17 +126,12 @@ async function checkInViaScript(qrCode) {
     }
     
     try {
-        const response = await fetch(webAppUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',  // Changed from application/json
-            },
-            body: JSON.stringify({
-                action: 'checkIn',
-                qrCode: qrCode
-            }),
-            redirect: 'follow',
-            mode: 'cors'
+        // Use GET request with URL parameters to avoid CORS preflight
+        const url = `${webAppUrl}?action=checkIn&qrCode=${encodeURIComponent(qrCode)}`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            redirect: 'follow'
         });
         
         // Get the response text first to see what we're actually receiving
