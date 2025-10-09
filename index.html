@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Check-In System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 QR Check-In System</h1>
+            <p class="subtitle">Scan QR codes to check in attendees</p>
+        </header>
+
+        <main>
+            <!-- Step 1: Apps Script Setup -->
+            <section id="setup-section" class="card">
+                <h2>🔗 Connect to Apps Script</h2>
+                <div class="input-group">
+                    <label for="webapp-url">Google Apps Script Web App URL:</label>
+                    <input 
+                        type="text" 
+                        id="webapp-url" 
+                        placeholder="https://script.google.com/macros/s/.../exec"
+                        required
+                    >
+                    <button id="connect-btn" class="btn btn-primary">Connect</button>
+                </div>
+                <div class="info-box">
+                    <strong>📝 Setup Instructions:</strong>
+                    <ol style="margin: 10px 0 0 20px; line-height: 1.8;">
+                        <li>Open your Google Sheet</li>
+                        <li>Go to <strong>Extensions → Apps Script</strong></li>
+                        <li>Copy code from <code>apps-script.js</code> and paste</li>
+                        <li>Click <strong>Deploy → New deployment → Web app</strong></li>
+                        <li>Set "Execute as" to <strong>Me</strong></li>
+                        <li>Set "Who has access" to <strong>Anyone</strong></li>
+                        <li>Click <strong>Deploy</strong> and copy the URL</li>
+                        <li>Paste the URL above and click Connect</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Step 2: QR Scanner -->
+            <section id="scanner-section" class="card" style="display: none;">
+                <h2>📸 QR Code Scanner</h2>
+                <div id="scanner-container">
+                    <div id="reader"></div>
+                </div>
+                <button id="stop-scan-btn" class="btn btn-secondary">Stop Scanner</button>
+                <button id="change-sheet-btn" class="btn btn-link">Change Web App</button>
+            </section>
+
+            <!-- Status Messages -->
+            <div id="status-container"></div>
+        </main>
+
+        <footer>
+            <p>Made with ❤️ for seamless check-ins</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
