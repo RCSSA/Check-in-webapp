@@ -6,11 +6,13 @@ let isScanning = false;
 // DOM Elements
 const connectBtn = document.getElementById('connect-btn');
 const webappUrlInput = document.getElementById('webapp-url');
-const setupSection = document.getElementById('setup-section');
+const welcomeSection = document.getElementById('welcome-section');
 const scannerSection = document.getElementById('scanner-section');
 const stopScanBtn = document.getElementById('stop-scan-btn');
 const changeSheetBtn = document.getElementById('change-sheet-btn');
-const statusContainer = document.getElementById('status-container');
+const successPage = document.getElementById('success-page');
+const alreadyCheckedInPage = document.getElementById('already-checked-in-page');
+const notFoundPage = document.getElementById('not-found-page');
 
 // Event Listeners
 connectBtn.addEventListener('click', connectToWebApp);
@@ -25,29 +27,43 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Show status message
-function showStatus(message, type = 'info', duration = 5000) {
-    const statusDiv = document.createElement('div');
-    statusDiv.className = `status-message status-${type}`;
+// Show full-screen status page
+function showStatusPage(statusType) {
+    // Hide scanner
+    scannerSection.style.display = 'none';
     
-    const icons = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        info: 'ℹ️'
-    };
+    // Stop the camera temporarily
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.pause(true);
+    }
     
-    statusDiv.innerHTML = `
-        <span class="status-icon">${icons[type]}</span>
-        <span>${message}</span>
-    `;
+    // Show appropriate status page
+    if (statusType === 'success') {
+        successPage.style.display = 'flex';
+    } else if (statusType === 'already_checked_in') {
+        alreadyCheckedInPage.style.display = 'flex';
+    } else if (statusType === 'not_found') {
+        notFoundPage.style.display = 'flex';
+    }
     
-    statusContainer.appendChild(statusDiv);
-    
+    // Return to scanner after 4 seconds
     setTimeout(() => {
-        statusDiv.style.animation = 'slideIn 0.3s ease reverse';
-        setTimeout(() => statusDiv.remove(), 300);
-    }, duration);
+        // Hide all status pages
+        successPage.style.display = 'none';
+        alreadyCheckedInPage.style.display = 'none';
+        notFoundPage.style.display = 'none';
+        
+        // Show scanner again
+        scannerSection.style.display = 'flex';
+        
+        // Resume scanning
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.resume();
+        }
+        
+        // Allow next scan
+        isScanning = false;
+    }, 4000);
 }
 
 // Connect to Web App
@@ -55,12 +71,12 @@ async function connectToWebApp() {
     const url = webappUrlInput.value.trim();
     
     if (!url) {
-        showStatus('Please enter a Web App URL', 'error');
+        alert('Please enter a Web App URL');
         return;
     }
     
     if (!url.includes('script.google.com/macros')) {
-        showStatus('Invalid Google Apps Script Web App URL', 'error');
+        alert('Invalid Google Apps Script Web App URL');
         return;
     }
     
@@ -75,15 +91,14 @@ async function connectToWebApp() {
         const testResult = await fetchSheetData();
         
         if (testResult && testResult.length > 0) {
-            showStatus('Successfully connected to Web App!', 'success');
-            setupSection.style.display = 'none';
-            scannerSection.style.display = 'block';
+            welcomeSection.style.display = 'none';
+            scannerSection.style.display = 'flex';
             startScanner();
         } else {
             throw new Error('Cannot fetch data from Web App');
         }
     } catch (error) {
-        showStatus('Failed to connect. Check the Web App URL and deployment settings.', 'error');
+        alert('Failed to connect. Check the Web App URL and deployment settings.');
         console.error('Connection error:', error);
         webAppUrl = null;
     } finally {
@@ -156,7 +171,6 @@ async function processQRCode(qrCodeData) {
     }
     
     isScanning = true;
-    showStatus(`Scanning: ${qrCodeData}`, 'info', 2000);
     
     try {
         // Use Apps Script backend for check-in
@@ -164,25 +178,19 @@ async function processQRCode(qrCodeData) {
         
         if (result.success) {
             if (result.status === 'checked_in') {
-                showStatus('✅ Check-in Success!', 'success', 4000);
+                showStatusPage('success');
             } else if (result.status === 'already_checked_in') {
-                showStatus('⚠️ Already checked in!', 'warning', 4000);
+                showStatusPage('already_checked_in');
             } else if (result.status === 'not_registered') {
-                showStatus('❌ Not registered', 'error', 4000);
+                showStatusPage('not_found');
             }
         } else {
-            showStatus(`Error: ${result.message}`, 'error', 5000);
+            showStatusPage('not_found');
         }
         
     } catch (error) {
         console.error('Error processing QR code:', error);
-        const errorMsg = error.message || 'Error processing QR code. Please try again.';
-        showStatus(errorMsg, 'error');
-    } finally {
-        // Allow scanning again after 2 seconds
-        setTimeout(() => {
-            isScanning = false;
-        }, 2000);
+        showStatusPage('not_found');
     }
 }
 
@@ -207,7 +215,7 @@ function startScanner() {
         }
     ).catch((err) => {
         console.error('Error starting scanner:', err);
-        showStatus('Could not start camera. Please check permissions.', 'error');
+        alert('Could not start camera. Please check permissions.');
     });
 }
 
@@ -215,7 +223,7 @@ function startScanner() {
 function stopScanner() {
     if (html5QrCode) {
         html5QrCode.stop().then(() => {
-            showStatus('Scanner stopped', 'info');
+            alert('Scanner stopped');
         }).catch((err) => {
             console.error('Error stopping scanner:', err);
         });
@@ -227,6 +235,6 @@ function changeWebApp() {
     stopScanner();
     webAppUrl = null;
     scannerSection.style.display = 'none';
-    setupSection.style.display = 'block';
+    welcomeSection.style.display = 'flex';
 }
 
