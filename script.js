@@ -125,24 +125,33 @@ async function checkInViaScript(qrCode) {
         throw new Error('WEB_APP_NOT_CONFIGURED');
     }
     
-    const response = await fetch(webAppUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            action: 'checkIn',
-            qrCode: qrCode
-        }),
-        redirect: 'follow'  // Important: Handle Google Apps Script redirects
-    });
-    
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+        const response = await fetch(webAppUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',  // Changed from application/json
+            },
+            body: JSON.stringify({
+                action: 'checkIn',
+                qrCode: qrCode
+            }),
+            redirect: 'follow',
+            mode: 'cors'
+        });
+        
+        // Get the response text first to see what we're actually receiving
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        
+        // Try to parse as JSON
+        const result = JSON.parse(responseText);
+        return result;
+    } catch (error) {
+        console.error('Detailed error:', error);
+        console.error('Error type:', error.name);
+        console.error('Error message:', error.message);
+        throw error;
     }
-    
-    const result = await response.json();
-    return result;
 }
 
 // Process scanned QR code
