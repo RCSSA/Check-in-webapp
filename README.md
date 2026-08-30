@@ -10,7 +10,7 @@ Event check-in needs to work with zero setup cost for a student organization: no
 
 ## 3. Quick start
 
-1. Deploy the backend once (see [Env / Installation](#4-env--installation) below) and copy the resulting Web App URL.
+1. Deploy the backend once (see [Env setup](#4-env-setup) below) and copy the resulting Web App URL.
 2. Open the live app: **https://rcssa.github.io/Check-in-webapp/**
 3. Paste the Web App URL into the **"Enter AppScript Deployment Code"** field and click **Connect**. The app tests the connection, then switches to the camera scanner.
 4. Point the camera at an attendee's QR code. The result appears as a full-screen page:
