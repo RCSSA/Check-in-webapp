@@ -17,3 +17,7 @@ desktop.ini
 *.tmp
 temp/
 
+# AI
+CLAUDE.md
+.claude
+AGENT.md
